@@ -5,6 +5,8 @@ import { isDevelopment } from "./env";
 
 const { parseEther } = ethers.utils;
 
+export const BASE_MAINNET = 8453;
+export const BASE_GOERLI = 84531;
 export const BCS_MAINNET = 56;
 export const BCS_TESTNET = 97;
 export const ETH_MAINNET = 1;
@@ -27,9 +29,12 @@ if (isDevelopment()) {
 export const IS_NETWORK_DISABLED = {
   [ARBITRUM]: false,
   [AVALANCHE]: false,
+  [BASE_GOERLI]: false,
 };
 
 export const CHAIN_NAMES_MAP = {
+  [BASE_MAINNET]: "Base",
+  [BASE_GOERLI]: "Base Goerli",
   [BCS_MAINNET]: "BSC",
   [BCS_TESTNET]: "BSC Testnet",
   [ARBITRUM_GOERLI]: "Arbitrum Goerli",
@@ -40,6 +45,8 @@ export const CHAIN_NAMES_MAP = {
 
 export const GAS_PRICE_ADJUSTMENT_MAP = {
   [ARBITRUM]: "0",
+  [BASE_GOERLI]: "0",
+  [BASE_MAINNET]: "0",
   [AVALANCHE]: "3000000000", // 3 gwei
 };
 
@@ -49,6 +56,8 @@ export const MAX_GAS_PRICE_MAP = {
 
 export const HIGH_EXECUTION_FEES_MAP = {
   [ARBITRUM]: 3, // 3 USD
+  [BASE_GOERLI]: 3,
+  [BASE_MAINNET]: 3,
   [AVALANCHE]: 3, // 3 USD
   [AVALANCHE_FUJI]: 3, // 3 USD
 };
@@ -59,6 +68,8 @@ export const EXECUTION_FEE_MULTIPLIER_MAP = {
   // if gas prices on Ethereum are high, than the gas usage might be higher, this calculation doesn't deal with that
   // case yet
   [ARBITRUM]: 65000,
+  [BASE_GOERLI]: 65000,
+  [BASE_MAINNET]: 65000,
   // multiplier for Avalanche is just the average gas usage
   [AVALANCHE]: 700000,
   [AVALANCHE_FUJI]: 700000,
@@ -133,6 +144,20 @@ const constants = {
     DECREASE_ORDER_EXECUTION_GAS_FEE: parseEther("0.000300001"),
   },
 
+  [BASE_GOERLI]: {
+    nativeTokenSymbol: "ETH",
+    wrappedTokenSymbol: "WETH",
+    defaultCollateralSymbol: "USDC",
+    defaultFlagOrdersEnabled: false,
+    positionReaderPropsLength: 9,
+    v2: true,
+
+    SWAP_ORDER_EXECUTION_GAS_FEE: parseEther("0.0003"),
+    INCREASE_ORDER_EXECUTION_GAS_FEE: parseEther("0.0003"),
+    // contract requires that execution fee be strictly greater than instead of gte
+    DECREASE_ORDER_EXECUTION_GAS_FEE: parseEther("0.000300001"),
+  },
+
   [AVALANCHE]: {
     nativeTokenSymbol: "AVAX",
     wrappedTokenSymbol: "WAVAX",
@@ -188,6 +213,8 @@ export const RPC_PROVIDERS = {
     // "https://endpoints.omniatech.io/v1/arbitrum/goerli/public",
     // "https://arbitrum-goerli.public.blastapi.io",
   ],
+  [BASE_MAINNET]: ["https://mainnet.base.org"],
+  [BASE_GOERLI]: ["https://goerli.base.org"],
   [AVALANCHE]: ["https://api.avax.network/ext/bc/C/rpc"],
   [AVALANCHE_FUJI]: [
     "https://avalanche-fuji-c-chain.publicnode.com",
@@ -251,6 +278,17 @@ export const NETWORK_METADATA: { [chainId: number]: NetworkMetadata } = {
       decimals: 18,
     },
     rpcUrls: RPC_PROVIDERS[ARBITRUM],
+    blockExplorerUrls: [getExplorerUrl(ARBITRUM)],
+  },
+  [BASE_GOERLI]: {
+    chainId: "0x" + BASE_GOERLI.toString(16),
+    chainName: "Base Goerli",
+    nativeCurrency: {
+      name: "ETH",
+      symbol: "ETH",
+      decimals: 18,
+    },
+    rpcUrls: RPC_PROVIDERS[BASE_GOERLI],
     blockExplorerUrls: [getExplorerUrl(ARBITRUM)],
   },
   [AVALANCHE]: {
@@ -332,6 +370,10 @@ export function getExplorerUrl(chainId) {
     return "https://snowtrace.io/";
   } else if (chainId === AVALANCHE_FUJI) {
     return "https://testnet.snowtrace.io/";
+  } else if (chainId === BASE_MAINNET) {
+    return "https://basescan.org";
+  } else if (chainId === BASE_GOERLI) {
+    return "https://goerli.base.org";
   }
   return "https://etherscan.io/";
 }

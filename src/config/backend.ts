@@ -2,13 +2,21 @@ import { ARBITRUM, ARBITRUM_GOERLI, AVALANCHE, BCS_MAINNET } from "./chains";
 
 export const GMX_STATS_API_URL = "https://stats.gmx.io/api";
 
-const BACKEND_URLS = {
-  default: "https://gmx-server-mainnet.uw.r.appspot.com",
+const URL = "http://localhost:4545";
 
-  [BCS_MAINNET]: "https://gambit-server-staging.uc.r.appspot.com",
-  [ARBITRUM_GOERLI]: "https://gambit-server-devnet.uc.r.appspot.com",
-  [ARBITRUM]: "https://gmx-server-mainnet.uw.r.appspot.com",
-  [AVALANCHE]: "https://gmx-avax-server.uc.r.appspot.com",
+const BACKEND_URLS = {
+  //  default: "https://gmx-server-mainnet.uw.r.appspot.com",
+  default: URL,
+
+  // [BCS_MAINNET]: "https://gambit-server-staging.uc.r.appspot.com",
+  // [ARBITRUM_GOERLI]: "https://gambit-server-devnet.uc.r.appspot.com",
+  // [ARBITRUM]: "https://gmx-server-mainnet.uw.r.appspot.com",
+  // [AVALANCHE]: "https://gmx-avax-server.uc.r.appspot.com",
+
+  [BCS_MAINNET]: URL,
+  [ARBITRUM_GOERLI]: URL,
+  [ARBITRUM]: URL,
+  [AVALANCHE]: URL,
 };
 
 export function getServerBaseUrl(chainId: number) {
@@ -16,12 +24,12 @@ export function getServerBaseUrl(chainId: number) {
     throw new Error("chainId is not provided");
   }
 
-  if (document.location.hostname.includes("deploy-preview")) {
-    const fromLocalStorage = localStorage.getItem("SERVER_BASE_URL");
-    if (fromLocalStorage) {
-      return fromLocalStorage;
-    }
-  }
+  // if (document.location.hostname.includes("deploy-preview")) {
+  //   const fromLocalStorage = localStorage.getItem("SERVER_BASE_URL");
+  //   if (fromLocalStorage) {
+  //     return fromLocalStorage;
+  //   }
+  // }
 
   return BACKEND_URLS[chainId] || BACKEND_URLS.default;
 }
