@@ -36,6 +36,7 @@ import {
   formatAcceptablePrice,
   formatLeverage,
   formatLiquidationPrice,
+  getTriggerNameByOrderType,
   usePositionsConstants,
 } from "domain/synthetics/positions";
 import { TokenData, TokensData, TokensRatio, convertToUsd, getTokensRatioByPrice } from "domain/synthetics/tokens";
@@ -87,7 +88,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { AiOutlineEdit } from "react-icons/ai";
 import { IoMdSwap } from "react-icons/io";
 import { usePrevious } from "react-use";
-import { ClaimableCard } from "../ClaimableCard/ClaimableCard";
 import { MarketCard } from "../MarketCard/MarketCard";
 import { SwapCard } from "../SwapCard/SwapCard";
 import { TradeFeesRow } from "../TradeFeesRow/TradeFeesRow";
@@ -136,7 +136,6 @@ export type Props = {
   onSelectMarketAddress: (marketAddress?: string) => void;
   onSelectCollateralAddress: (collateralAddress?: string) => void;
   setIsEditingAcceptablePriceImpact: (val: boolean) => void;
-  setIsClaiming: (val: boolean) => void;
   switchTokenAddresses: () => void;
 };
 
@@ -181,7 +180,6 @@ export function TradeBox(p: Props) {
     onSelectTradeMode,
     onSelectTradeType,
     setIsEditingAcceptablePriceImpact,
-    setIsClaiming,
     setPendingTxns,
     switchTokenAddresses,
   } = p;
@@ -207,7 +205,7 @@ export function TradeBox(p: Props) {
   const tradeModeLabels = {
     [TradeMode.Market]: t`Market`,
     [TradeMode.Limit]: t`Limit`,
-    [TradeMode.Trigger]: t`Trigger`,
+    [TradeMode.Trigger]: t`TP/SL`,
   };
 
   const { chainId } = useChainId();
@@ -766,9 +764,19 @@ export function TradeBox(p: Props) {
     } else if (isLimit) {
       return t`Create Limit order`;
     } else {
-      return t`Create Trigger order`;
+      return t`Create ${getTriggerNameByOrderType(decreaseAmounts?.triggerOrderType!)} Order`;
     }
-  }, [error, fromToken?.symbol, isLimit, isMarket, isSwap, toToken?.symbol, tradeType, tradeTypeLabels]);
+  }, [
+    decreaseAmounts?.triggerOrderType,
+    error,
+    fromToken?.symbol,
+    isLimit,
+    isMarket,
+    isSwap,
+    toToken?.symbol,
+    tradeType,
+    tradeTypeLabels,
+  ]);
 
   function onSubmit() {
     if (!account) {
@@ -1187,6 +1195,7 @@ export function TradeBox(p: Props) {
           hasExistingOrder={Boolean(existingOrder)}
           hasExistingPosition={Boolean(existingPosition)}
           onSelectCollateralAddress={onSelectCollateralAddress}
+          isMarket={isMarket}
         />
 
         {isTrigger && existingPosition?.leverage && (
@@ -1540,7 +1549,6 @@ export function TradeBox(p: Props) {
             allowedSlippage={allowedSlippage}
           />
         )}
-        {account && <ClaimableCard marketsInfoData={marketsInfoData} onClaimClick={() => setIsClaiming(true)} />}
       </div>
 
       <ConfirmationBox
@@ -1558,6 +1566,7 @@ export function TradeBox(p: Props) {
         triggerRatio={triggerRatio}
         marketInfo={marketInfo}
         collateralToken={collateralToken}
+        marketsOptions={marketsOptions}
         swapAmounts={swapAmounts}
         increaseAmounts={increaseAmounts}
         decreaseAmounts={decreaseAmounts}
